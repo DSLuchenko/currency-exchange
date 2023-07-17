@@ -1,15 +1,15 @@
 package com.dsluchenko.app.dao.impl;
 
 import com.dsluchenko.app.dao.CurrencyDao;
+import com.dsluchenko.app.dao.exception.DaoConstraintViolationRuntimeException;
 import com.dsluchenko.app.dao.exception.DaoRuntimeException;
 import com.dsluchenko.app.entity.Currency;
 import com.dsluchenko.app.util.DbConnectionBuilder;
+import com.dsluchenko.app.util.impl.PgSqlErrorCode;
 import com.dsluchenko.app.util.impl.PoolConnectionBuilder;
+import org.postgresql.util.PSQLException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +18,11 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class JdbcCurrencyDao implements CurrencyDao {
-    private static final Logger logger = Logger.getLogger(JdbcCurrencyDao.class.getName());
+public class CurrencyDaoJdbc implements CurrencyDao {
+    private static final Logger logger = Logger.getLogger(CurrencyDaoJdbc.class.getName());
     private final DbConnectionBuilder connBuilder;
 
-    public JdbcCurrencyDao() {
+    public CurrencyDaoJdbc() {
         connBuilder = new PoolConnectionBuilder();
     }
 
@@ -74,16 +74,36 @@ public class JdbcCurrencyDao implements CurrencyDao {
     }
 
     @Override
-    public void save(Currency currency) {
+    public int save(Currency currency) {
         String sql = "INSERT INTO currency (code,full_name,sign) values(?,?,?)";
+        int id = 0;
         try (Connection connection = connBuilder.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
             statement.setString(1, currency.getCode());
             statement.setString(2, currency.getFullName());
             statement.setString(3, currency.getSign());
-            statement.execute();
 
+            int affectedRows = statement.executeUpdate();
+            if (affectedRows > 0) {
+                try (ResultSet rs = statement.getGeneratedKeys()) {
+                    rs.next();
+                    id = rs.getInt(1);
+                }
+            }
+
+        } catch (PSQLException e) {
+            if (e.getSQLState().equals(PgSqlErrorCode.UNIQUE_VIOLATION)) {
+                logger.log(Level.SEVERE,
+                        "Currency not saved, constraint has been violated",
+                        e);
+                throw new DaoConstraintViolationRuntimeException();
+            }
+
+            logger.log(Level.SEVERE,
+                    "Currency not saved, sqlError code: " + e.getSQLState(),
+                    e);
+            throw new DaoRuntimeException(e.getMessage());
         } catch (SQLException e) {
             logger.log(Level.SEVERE,
                     "Currency not saved",
@@ -91,16 +111,18 @@ public class JdbcCurrencyDao implements CurrencyDao {
             throw new DaoRuntimeException(e.getMessage());
         }
 
+        return id;
     }
 
     @Override
-    public void update(Currency currency, String[] params) {
-
+    public int update(Currency currency, String[] params) {
+        return 0;
     }
 
     @Override
-    public void delete(Currency currency) {
+    public int delete(Currency currency) {
         String sql = "DELETE currency WHERE id = ?";
+        int id = 0;
         try (Connection connection = connBuilder.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)
         ) {
@@ -113,7 +135,7 @@ public class JdbcCurrencyDao implements CurrencyDao {
                     e);
             throw new DaoRuntimeException(e.getMessage());
         }
-
+        return id;
     }
 
     @Override

@@ -6,7 +6,7 @@ import com.dsluchenko.app.entity.ExchangeRate;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcExchangeRateDao implements ExchangeRateDao {
+public class ExchangeRateDaoJdbc implements ExchangeRateDao {
     @Override
     public Optional<ExchangeRate> get(int id) {
         return Optional.empty();
@@ -18,17 +18,17 @@ public class JdbcExchangeRateDao implements ExchangeRateDao {
     }
 
     @Override
-    public void save(ExchangeRate exchangeRate) {
-
+    public int save(ExchangeRate exchangeRate) {
+        return 0;
     }
 
     @Override
-    public void update(ExchangeRate exchangeRate, String[] params) {
-
+    public int update(ExchangeRate exchangeRate, String[] params) {
+        return 0;
     }
 
     @Override
-    public void delete(ExchangeRate exchangeRate) {
-
+    public int delete(ExchangeRate exchangeRate) {
+        return 0;
     }
 }

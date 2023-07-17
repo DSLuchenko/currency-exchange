@@ -1,7 +1,9 @@
 package com.dsluchenko.app.entity;
 
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @Data
 public class Currency {
     private final int id;

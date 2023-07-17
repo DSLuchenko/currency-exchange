@@ -8,9 +8,9 @@ public interface Service <T>{
 
     List<T> getAll();
 
-    void create(T t);
+    T create(T t);
 
-    void update(T t, String[] params);
+    T update(T t, String[] params);
 
     void delete(T t);
 }

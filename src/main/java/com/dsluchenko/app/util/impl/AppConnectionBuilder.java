@@ -52,6 +52,4 @@ final class AppConnectionBuilder implements DbConnectionBuilder {
         password = props.getProperty("jdbc.password");
 
     }
-
-
 }
