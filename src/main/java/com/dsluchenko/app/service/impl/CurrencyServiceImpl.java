@@ -10,7 +10,6 @@ import com.dsluchenko.app.service.exception.CurrencyIntegrityViolationRuntimeExc
 import com.dsluchenko.app.service.exception.CurrencyNotFoundException;
 import com.dsluchenko.app.service.exception.ServerRuntimeException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,34 +28,30 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public List<Currency> getAll() {
-        List<Currency> currencies = new ArrayList<>();
         try {
-            currencies = dao.getAll();
+            List<Currency> currencies = dao.getAll();
+            return currencies;
         } catch (DaoRuntimeException e) {
             throw new ServerRuntimeException();
         }
-        return currencies;
     }
 
     @Override
     public Currency create(Currency currency) {
-        Currency savedCurrency = Currency.builder()
-                                         .build();
         try {
             int idSavedCurrency = dao.save(currency);
-            savedCurrency = Currency.builder()
-                                    .id(idSavedCurrency)
-                                    .code(currency.getCode())
-                                    .fullName(currency.getFullName())
-                                    .sign(currency.getSign())
-                                    .build();
+            Currency savedCurrency = Currency.builder()
+                                             .id(idSavedCurrency)
+                                             .code(currency.getCode())
+                                             .fullName(currency.getFullName())
+                                             .sign(currency.getSign())
+                                             .build();
+            return savedCurrency;
         } catch (DaoConstraintViolationRuntimeException e) {
             throw new CurrencyIntegrityViolationRuntimeException();
-
         } catch (DaoRuntimeException e) {
             throw new ServerRuntimeException();
         }
-        return savedCurrency;
     }
 
     @Override
@@ -71,14 +66,12 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public Currency findByCode(String code) {
-        Optional<Currency> currency = Optional.empty();
         try {
-            currency = dao.getByCode(code);
+            Optional<Currency> currency = dao.getByCode(code);
             if (currency.isEmpty()) throw new CurrencyNotFoundException();
+            return currency.get();
         } catch (DaoRuntimeException e) {
             throw new ServerRuntimeException();
         }
-
-        return currency.get();
     }
 }

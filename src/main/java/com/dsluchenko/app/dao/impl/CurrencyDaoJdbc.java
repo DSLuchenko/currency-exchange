@@ -55,22 +55,21 @@ public class CurrencyDaoJdbc implements CurrencyDao {
     @Override
     public List<Currency> getAll() {
         String sql = "SELECT * FROM currency";
+        List<Currency> currencies = new ArrayList<>();
         try (Connection connection = connBuilder.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()
         ) {
-            List<Currency> currencies = new ArrayList<>();
             while (resultSet.next()) {
                 createCurrency(resultSet).ifPresent(currencies::add);
             }
-            return currencies;
         } catch (SQLException e) {
             logger.log(Level.SEVERE,
                     "List of all currencies not received",
                     e);
             throw new DaoRuntimeException(e.getMessage());
         }
-
+        return currencies;
     }
 
     @Override
@@ -166,12 +165,13 @@ public class CurrencyDaoJdbc implements CurrencyDao {
 
 
     private Optional<Currency> createCurrency(ResultSet resultSet) throws SQLException {
-        return Optional.of(Currency.builder()
-                                   .id(resultSet.getInt("id"))
-                                   .code(resultSet.getString("code"))
-                                   .fullName(resultSet.getString("full_name"))
-                                   .sign(resultSet.getString("sign"))
-                                   .build()
-        );
+        Currency currency = Currency.builder()
+                                    .id(resultSet.getInt("id"))
+                                    .code(resultSet.getString("code"))
+                                    .fullName(resultSet.getString("full_name"))
+                                    .sign(resultSet.getString("sign"))
+                                    .build();
+
+        return Optional.of(currency);
     }
 }
