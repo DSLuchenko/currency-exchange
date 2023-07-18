@@ -1,7 +1,9 @@
 package com.dsluchenko.app.servlet;
 
 import com.dsluchenko.app.service.impl.CurrencyServiceImpl;
+import com.dsluchenko.app.service.impl.ExchangeRateServiceImpl;
 import com.dsluchenko.app.util.impl.CurrencyMapperImpl;
+import com.dsluchenko.app.util.impl.ExchangeRateMapperImpl;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
@@ -13,8 +15,12 @@ public class ApplicationServletContext implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext servletContext = sce.getServletContext();
-        servletContext.setAttribute(CurrencyMapperImpl.class.getName(), new CurrencyMapperImpl());
-        servletContext.setAttribute(CurrencyServiceImpl.class.getName(), new CurrencyServiceImpl());
+        servletContext.setAttribute(CurrencyMapperImpl.class.getSimpleName(), new CurrencyMapperImpl());
+        servletContext.setAttribute(CurrencyServiceImpl.class.getSimpleName(), new CurrencyServiceImpl());
+
+        servletContext.setAttribute(ExchangeRateMapperImpl.class.getSimpleName(), new ExchangeRateMapperImpl());
+        servletContext.setAttribute(ExchangeRateServiceImpl.class.getSimpleName(), new ExchangeRateServiceImpl());
+
         ServletContextListener.super.contextInitialized(sce);
     }
 
