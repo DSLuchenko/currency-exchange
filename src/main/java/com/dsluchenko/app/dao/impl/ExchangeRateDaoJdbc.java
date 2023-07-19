@@ -80,6 +80,50 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
         return 0;
     }
 
+    @Override
+    public Optional<ExchangeRate> getByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode) {
+        String sql = "SELECT rate.id id," +
+                " rate.rate rate," +
+                " base.id base_id," +
+                " base.code base_code," +
+                " base.full_name base_name," +
+                " base.sign base_sign," +
+                " target.id target_id," +
+                " target.code target_code," +
+                " target.full_name target_name," +
+                " target.sign target_sign" +
+                " FROM exchange_rate rate " +
+                "join currency base on rate.base_currency_id = base.id " +
+                "join currency target on rate.target_currency_id = target.id " +
+                "where base.code = ?" +
+                " and target.code = ?";
+
+        try (Connection connection = connBuilder.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+
+        ) {
+            statement.setString(1, baseCurrencyCode);
+            statement.setString(2, targetCurrencyCode);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return createExchangeRate(resultSet);
+                }
+            }
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, String.format("Exchange rate with base currency code: " +
+                                    " %s and target currency code: " +
+                                    " %s not received",
+                            baseCurrencyCode,
+                            targetCurrencyCode),
+                    e);
+            throw new DaoRuntimeException(e.getMessage());
+        }
+
+        return Optional.empty();
+    }
+
     private Optional<ExchangeRate> createExchangeRate(ResultSet resultSet) throws SQLException {
         Currency base = Currency.builder()
                                 .id(resultSet.getInt("base_id"))

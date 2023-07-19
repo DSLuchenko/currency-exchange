@@ -1,6 +1,6 @@
 package com.dsluchenko.app.servlet.filter;
 
-import com.dsluchenko.app.dto.CurrencyDTO;
+import com.dsluchenko.app.dto.CurrencyDto;
 import com.dsluchenko.app.servlet.exception.BadParametersRuntimeException;
 
 import jakarta.servlet.Filter;
@@ -21,9 +21,9 @@ import java.util.List;
 @WebFilter(urlPatterns = "/currency/*", servletNames = "CurrencyServlet")
 public class CurrencyFilter implements Filter {
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
         String method = httpRequest.getMethod();
 
         switch (method) {
@@ -37,12 +37,12 @@ public class CurrencyFilter implements Filter {
                 break;
         }
 
-        filterChain.doFilter(servletRequest, servletResponse);
+        chain.doFilter(request, response);
     }
 
     private void checkReqCreateCurrency(HttpServletRequest servletRequest) {
 
-        List<String> currencyFields = Arrays.stream(CurrencyDTO.class.getDeclaredFields())
+        List<String> currencyFields = Arrays.stream(CurrencyDto.class.getDeclaredFields())
                                             .toList()
                                             .stream()
                                             .map(f -> f.getName())

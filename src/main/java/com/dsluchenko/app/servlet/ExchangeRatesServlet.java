@@ -11,7 +11,6 @@ import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -19,7 +18,7 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet("/exchangeRates")
-public class ExchangeRatesServlet extends HttpServlet {
+public class ExchangeRatesServlet extends BaseServlet {
     private ExchangeRateService service;
     private ExchangeRateMapper mapper;
 

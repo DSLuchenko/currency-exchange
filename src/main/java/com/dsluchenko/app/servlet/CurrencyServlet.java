@@ -1,6 +1,6 @@
 package com.dsluchenko.app.servlet;
 
-import com.dsluchenko.app.dto.CurrencyDTO;
+import com.dsluchenko.app.dto.CurrencyDto;
 import com.dsluchenko.app.entity.Currency;
 import com.dsluchenko.app.service.CurrencyService;
 import com.dsluchenko.app.service.impl.CurrencyServiceImpl;
@@ -34,7 +34,7 @@ public class CurrencyServlet extends BaseServlet {
         String code = req.getPathInfo()
                          .substring(1);
         Currency currency = service.findByCode(code);
-        CurrencyDTO currencyDTO = mapper.mapToDTO(currency);
+        CurrencyDto currencyDTO = mapper.mapToDTO(currency);
         String data = new Gson().toJson(currencyDTO);
         resp.getWriter().write(data);
     }
@@ -45,7 +45,7 @@ public class CurrencyServlet extends BaseServlet {
         String code = req.getParameter("code");
         String sign = req.getParameter("sign");
 
-        CurrencyDTO currencyDTO = new CurrencyDTO(name, code, sign);
+        CurrencyDto currencyDTO = new CurrencyDto(name, code, sign);
         Currency newCurrency = mapper.mapToEntity(currencyDTO);
         newCurrency = service.create(newCurrency);
         String responseData = new Gson().toJson(newCurrency);

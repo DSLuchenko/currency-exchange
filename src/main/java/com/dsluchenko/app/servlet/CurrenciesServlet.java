@@ -1,6 +1,6 @@
 package com.dsluchenko.app.servlet;
 
-import com.dsluchenko.app.dto.CurrencyDTO;
+import com.dsluchenko.app.dto.CurrencyDto;
 import com.dsluchenko.app.service.CurrencyService;
 import com.dsluchenko.app.service.impl.CurrencyServiceImpl;
 import com.dsluchenko.app.util.CurrencyMapper;
@@ -31,7 +31,7 @@ public class CurrenciesServlet extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        List<CurrencyDTO> currencies = service.getAll()
+        List<CurrencyDto> currencies = service.getAll()
                                               .stream()
                                               .map(mapper::mapToDTO)
                                               .toList();

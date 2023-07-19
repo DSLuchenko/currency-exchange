@@ -2,5 +2,5 @@ package com.dsluchenko.app.dto;
 
 import java.math.BigDecimal;
 
-public record ExchangeRateDto(CurrencyDTO base, CurrencyDTO target, BigDecimal rate) {
+public record ExchangeRateDto(CurrencyDto base, CurrencyDto target, BigDecimal rate) {
 }

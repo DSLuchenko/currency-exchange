@@ -5,6 +5,7 @@ import com.dsluchenko.app.dao.exception.DaoRuntimeException;
 import com.dsluchenko.app.dao.impl.ExchangeRateDaoJdbc;
 import com.dsluchenko.app.entity.ExchangeRate;
 import com.dsluchenko.app.service.ExchangeRateService;
+import com.dsluchenko.app.service.exception.ExchangeRateNotFoundRuntimeException;
 import com.dsluchenko.app.service.exception.ServerRuntimeException;
 
 import java.util.List;
@@ -44,5 +45,15 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
     @Override
     public void delete(ExchangeRate exchangeRate) {
 
+    }
+
+    @Override
+    public ExchangeRate findByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode) {
+        try {
+            Optional<ExchangeRate> exchangeRate = dao.getByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
+            return exchangeRate.orElseThrow(() -> new ExchangeRateNotFoundRuntimeException());
+        } catch (DaoRuntimeException e) {
+            throw new ServerRuntimeException();
+        }
     }
 }
