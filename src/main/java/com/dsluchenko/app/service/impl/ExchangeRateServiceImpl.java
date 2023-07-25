@@ -8,6 +8,7 @@ import com.dsluchenko.app.service.ExchangeRateService;
 import com.dsluchenko.app.service.exception.ExchangeRateNotFoundRuntimeException;
 import com.dsluchenko.app.service.exception.ServerRuntimeException;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,11 +17,6 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 
     public ExchangeRateServiceImpl() {
         this.dao = new ExchangeRateDaoJdbc();
-    }
-
-    @Override
-    public Optional<ExchangeRate> findById(int id) {
-        return Optional.empty();
     }
 
     @Override
@@ -38,20 +34,20 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
     }
 
     @Override
-    public ExchangeRate update(ExchangeRate exchangeRate, String[] params) {
-        return null;
-    }
-
-    @Override
-    public void delete(ExchangeRate exchangeRate) {
-
-    }
-
-    @Override
     public ExchangeRate findByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode) {
         try {
             Optional<ExchangeRate> exchangeRate = dao.getByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
-            return exchangeRate.orElseThrow(() -> new ExchangeRateNotFoundRuntimeException());
+            return exchangeRate.orElseThrow(ExchangeRateNotFoundRuntimeException::new);
+        } catch (DaoRuntimeException e) {
+            throw new ServerRuntimeException();
+        }
+    }
+
+    @Override
+    public ExchangeRate changeRate(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
+        try {
+            Optional<ExchangeRate> exchangeRate = dao.updateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode, rate);
+            return exchangeRate.orElseThrow(ExchangeRateNotFoundRuntimeException::new);
         } catch (DaoRuntimeException e) {
             throw new ServerRuntimeException();
         }

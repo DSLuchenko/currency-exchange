@@ -5,7 +5,10 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Optional;
 
 
 @WebFilter("/exchangeRate/*")
@@ -16,12 +19,31 @@ public class ExchangeRateFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String method = httpRequest.getMethod();
 
+        String pathInfo = Optional.ofNullable(httpRequest.getPathInfo())
+                                  .orElseThrow(
+                                          BadParametersRuntimeException::new);
+
+        String currencyCodesFromUrl = pathInfo.substring(1);
+
+        if (currencyCodesFromUrl.length() != 6)
+            throw new BadParametersRuntimeException();
+
+        String baseCode = currencyCodesFromUrl.substring(0, 3);
+        String targetCode = currencyCodesFromUrl.substring(3);
+
         switch (method) {
             case "POST":
                 //TODO checkReqCreateExchangeRate
                 break;
+            case "PATCH":
+                BigDecimal rate = getRateFromBody(httpRequest);
+                request.setAttribute("rate", rate);
+                request.setAttribute("baseCode", baseCode);
+                request.setAttribute("targetCode", targetCode);
+                break;
             case "GET":
-                checkReqGetByCurrencyCodes(httpRequest);
+                request.setAttribute("baseCode", baseCode);
+                request.setAttribute("targetCode", targetCode);
                 break;
             default:
                 break;
@@ -30,11 +52,23 @@ public class ExchangeRateFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    private void checkReqGetByCurrencyCodes(HttpServletRequest servletRequest) {
-        String pathInfo = servletRequest.getPathInfo();
+    private BigDecimal getRateFromBody(HttpServletRequest servletRequest) {
+        try (BufferedReader reader = servletRequest.getReader()) {
 
-        if (pathInfo == null || pathInfo.substring(1)
-                                        .length() != 6)
+            String data = reader.readLine();
+            String[] body = data.split("=");
+            String parameterName = body[0];
+            String parameterValue = body[1];
+
+            if (!parameterName.equals("rate")) throw new BadParametersRuntimeException();
+
+            BigDecimal rate = BigDecimal.valueOf(
+                    Double.parseDouble(parameterValue));
+
+            return rate;
+
+        } catch (Exception e) {
             throw new BadParametersRuntimeException();
+        }
     }
 }
