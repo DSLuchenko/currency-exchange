@@ -99,8 +99,7 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
                 " and target.code = ?";
 
         try (Connection connection = connBuilder.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-
+             PreparedStatement statement = connection.prepareStatement(sql)
         ) {
             statement.setString(1, baseCurrencyCode);
             statement.setString(2, targetCurrencyCode);
@@ -115,6 +114,59 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
             logger.log(Level.SEVERE, String.format("Exchange rate with base currency code: " +
                                     " %s and target currency code: " +
                                     " %s not received",
+                            baseCurrencyCode,
+                            targetCurrencyCode),
+                    e);
+            throw new DaoRuntimeException(e.getMessage());
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<ExchangeRate> updateByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
+        String sql = "with er as " +
+                "         (update exchange_rate " +
+                "             set rate = ? " +
+                "             where id = (select er.id " +
+                "                         from exchange_rate er " +
+                "                                  inner join currency base on base.id = er.base_currency_id " +
+                "                                  inner join currency target on target.id = er.target_currency_id " +
+                "                         where base.code = ? " +
+                "                           and target.code = ?) returning *) " +
+                "select er.id            id, " +
+                "       er.rate          rate, " +
+                "       base.id          base_id, " +
+                "       base.code        base_code, " +
+                "       base.full_name   base_name, " +
+                "       base.sign        base_sign, " +
+                "       target.id        target_id, " +
+                "       target.code      target_code, " +
+                "       target.full_name target_name, " +
+                "       target.sign      target_sign " +
+                "from er " +
+                "         inner join currency base on base.id = er.base_currency_id " +
+                "         inner join currency target on target.id = er.target_currency_id";
+
+        try (Connection connection = connBuilder.getConnection();
+             PreparedStatement statementUpdate = connection.prepareStatement(sql)
+        ) {
+
+            statementUpdate.setBigDecimal(1, rate);
+            statementUpdate.setString(2, baseCurrencyCode);
+            statementUpdate.setString(3, targetCurrencyCode);
+
+            try (ResultSet resultSet = statementUpdate.executeQuery()) {
+                if (resultSet.next()) {
+                    return createExchangeRate(resultSet);
+                }
+            }
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, String.format("Exchange rate value: %f with base currency code: " +
+                                    " %s and target currency code: " +
+                                    " %s not update",
+                            rate,
                             baseCurrencyCode,
                             targetCurrencyCode),
                     e);

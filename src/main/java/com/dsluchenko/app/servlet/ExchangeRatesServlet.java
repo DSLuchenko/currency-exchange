@@ -6,8 +6,6 @@ import com.dsluchenko.app.service.impl.ExchangeRateServiceImpl;
 import com.dsluchenko.app.util.ExchangeRateMapper;
 import com.dsluchenko.app.util.impl.ExchangeRateMapperImpl;
 
-import com.google.gson.Gson;
-
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,23 +19,22 @@ import java.util.List;
 public class ExchangeRatesServlet extends BaseServlet {
     private ExchangeRateService service;
     private ExchangeRateMapper mapper;
+    private ResponseHandler responseHandler;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        super.init(config);
         service = (ExchangeRateServiceImpl) config.getServletContext().getAttribute(ExchangeRateServiceImpl.class.getSimpleName());
         mapper = (ExchangeRateMapperImpl) config.getServletContext().getAttribute(ExchangeRateMapperImpl.class.getSimpleName());
+        responseHandler = (ResponseHandler) config.getServletContext().getAttribute(ResponseHandler.class.getSimpleName());
+        super.init(config);
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp){
         List<ExchangeRateDto> exchangeRates = service.getAll().stream()
                                                      .map(mapper::mapToDTO)
                                                      .toList();
 
-        String respData = new Gson().toJson(exchangeRates);
-
-        resp.setStatus(HttpServletResponse.SC_OK);
-        resp.getWriter().write(respData);
+        responseHandler.writeResponse(resp, exchangeRates);
     }
 }

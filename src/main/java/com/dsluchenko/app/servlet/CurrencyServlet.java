@@ -7,48 +7,43 @@ import com.dsluchenko.app.service.impl.CurrencyServiceImpl;
 import com.dsluchenko.app.util.CurrencyMapper;
 import com.dsluchenko.app.util.impl.CurrencyMapperImpl;
 
-import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-
-
 @WebServlet("/currency/*")
 public class CurrencyServlet extends BaseServlet {
 
     private CurrencyService service;
     private CurrencyMapper mapper;
+    private ResponseHandler responseHandler;
 
     @Override
-    public void init(ServletConfig config) {
+    public void init(ServletConfig config) throws ServletException {
         service = (CurrencyServiceImpl) config.getServletContext().getAttribute(CurrencyServiceImpl.class.getSimpleName());
         mapper = (CurrencyMapperImpl) config.getServletContext().getAttribute(CurrencyMapperImpl.class.getSimpleName());
+        responseHandler = (ResponseHandler) config.getServletContext().getAttribute(ResponseHandler.class.getSimpleName());
+        super.init(config);
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws RuntimeException, IOException {
-        String code = req.getPathInfo()
-                         .substring(1);
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        String code = (String) req.getAttribute("code");
+
         Currency currency = service.findByCode(code);
         CurrencyDto currencyDTO = mapper.mapToDTO(currency);
-        String data = new Gson().toJson(currencyDTO);
-        resp.getWriter().write(data);
+
+        responseHandler.writeResponse(resp, currencyDTO);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String name = req.getParameter("name");
-        String code = req.getParameter("code");
-        String sign = req.getParameter("sign");
-
-        CurrencyDto currencyDTO = new CurrencyDto(name, code, sign);
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        CurrencyDto currencyDTO = (CurrencyDto) req.getAttribute("dto");
         Currency newCurrency = mapper.mapToEntity(currencyDTO);
         newCurrency = service.create(newCurrency);
-        String responseData = new Gson().toJson(newCurrency);
-        resp.getWriter().write(responseData);
+
+        responseHandler.writeResponse(resp, newCurrency);
     }
 }

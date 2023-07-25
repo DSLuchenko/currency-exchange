@@ -1,18 +1,33 @@
 package com.dsluchenko.app.servlet;
 
 import com.dsluchenko.app.dto.ErrorResponse;
+import com.dsluchenko.app.service.exception.ServerRuntimeException;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
+import java.io.PrintWriter;
 
 public final class ResponseHandler {
-    public static void writeError(ServletResponse resp, int errorCode, String errorMessage) throws IOException {
-        ((HttpServletResponse) resp).setStatus(errorCode);
-        ErrorResponse error = new ErrorResponse(errorMessage);
-        String errorJson = new Gson().toJson(error);
-        resp.getWriter().write(errorJson);
-        resp.getWriter().close();
+    public void writeError(ServletResponse resp, int errorCode, String errorMessage) {
+        try (PrintWriter writer = resp.getWriter()) {
+            ((HttpServletResponse) resp).setStatus(errorCode);
+            ErrorResponse error = new ErrorResponse(errorMessage);
+            String errorJson = new Gson().toJson(error);
+            writer.write(errorJson);
+        } catch (Exception e) {
+            throw new ServerRuntimeException();
+        }
     }
+
+    public void writeResponse(ServletResponse resp, Object data) {
+        try (PrintWriter writer = resp.getWriter()) {
+            ((HttpServletResponse) resp).setStatus(HttpServletResponse.SC_OK);
+            String responseData = new Gson().toJson(data);
+            writer.write(responseData);
+        } catch (Exception e) {
+            throw new ServerRuntimeException();
+        }
+    }
+
 }

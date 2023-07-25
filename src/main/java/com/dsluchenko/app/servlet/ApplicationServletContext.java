@@ -17,11 +17,9 @@ public class ApplicationServletContext implements ServletContextListener {
         ServletContext servletContext = sce.getServletContext();
         servletContext.setAttribute(CurrencyMapperImpl.class.getSimpleName(), new CurrencyMapperImpl());
         servletContext.setAttribute(CurrencyServiceImpl.class.getSimpleName(), new CurrencyServiceImpl());
-
         servletContext.setAttribute(ExchangeRateMapperImpl.class.getSimpleName(), new ExchangeRateMapperImpl());
         servletContext.setAttribute(ExchangeRateServiceImpl.class.getSimpleName(), new ExchangeRateServiceImpl());
-
-        ServletContextListener.super.contextInitialized(sce);
+        servletContext.setAttribute(ResponseHandler.class.getSimpleName(), new ResponseHandler());
     }
 
     @Override

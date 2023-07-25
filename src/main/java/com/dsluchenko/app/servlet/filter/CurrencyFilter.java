@@ -13,9 +13,8 @@ import jakarta.servlet.http.HttpServletRequest;
 
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.lang.reflect.Field;
+import java.util.*;
 
 
 @WebFilter(urlPatterns = "/currency/*", servletNames = "CurrencyServlet")
@@ -28,10 +27,16 @@ public class CurrencyFilter implements Filter {
 
         switch (method) {
             case "POST":
-                checkReqCreateCurrency(httpRequest);
+                validateCurrencyParametersInBody(request);
+                String name = request.getParameter("name");
+                String code = request.getParameter("code").toUpperCase();
+                String sign = request.getParameter("sign");
+                request.setAttribute("dto", new CurrencyDto(name, code, sign));
                 break;
             case "GET":
-                checkReqGetCurrencyByCode(httpRequest);
+                validateCurrencyCodeInUrl(httpRequest.getPathInfo());
+                httpRequest.setAttribute("code", httpRequest.getPathInfo()
+                                                            .substring(1));
                 break;
             default:
                 break;
@@ -40,29 +45,39 @@ public class CurrencyFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    private void checkReqCreateCurrency(HttpServletRequest servletRequest) {
-
+    private void validateCurrencyParametersInBody(ServletRequest request) {
         List<String> currencyFields = Arrays.stream(CurrencyDto.class.getDeclaredFields())
                                             .toList()
                                             .stream()
-                                            .map(f -> f.getName())
+                                            .map(Field::getName)
                                             .sorted()
                                             .toList();
 
-        List<String> requestFormFields = Collections.list(servletRequest.getParameterNames());
+        List<String> requestFormFields = Collections.list(request.getParameterNames());
 
         Collections.sort(requestFormFields);
 
         if (!currencyFields.equals(requestFormFields))
             throw new BadParametersRuntimeException();
+
+
+        String code = request.getParameter("code");
+        String sign = request.getParameter("sign");
+
+        if (code.length() != 3 || sign.length() != 1) {
+            throw new BadParametersRuntimeException("Wrong request parameters:" +
+                    " 'code' length must be 3 characters" +
+                    " and 'sign' length must be 1 character");
+        }
     }
 
-    private void checkReqGetCurrencyByCode(HttpServletRequest servletRequest) {
-        String pathInfo = servletRequest.getPathInfo();
+    private void validateCurrencyCodeInUrl(String pathInfo) {
+        String code = Optional.ofNullable(pathInfo)
+                              .orElseThrow(
+                                      BadParametersRuntimeException::new)
+                              .substring(1);
 
-        if (pathInfo == null || pathInfo.substring(1)
-                                        .length() != 3)
+        if (code.length() != 3)
             throw new BadParametersRuntimeException();
-
     }
 }
