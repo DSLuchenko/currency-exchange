@@ -6,7 +6,7 @@ import com.dsluchenko.app.dao.exception.DaoRuntimeException;
 import com.dsluchenko.app.dao.impl.CurrencyDaoJdbc;
 import com.dsluchenko.app.entity.Currency;
 import com.dsluchenko.app.service.CurrencyService;
-import com.dsluchenko.app.service.exception.CurrencyIntegrityViolationRuntimeException;
+import com.dsluchenko.app.service.exception.IntegrityViolationRuntimeException;
 import com.dsluchenko.app.service.exception.CurrencyNotFoundException;
 import com.dsluchenko.app.service.exception.ServerRuntimeException;
 
@@ -19,11 +19,6 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     public CurrencyServiceImpl() {
         dao = new CurrencyDaoJdbc();
-    }
-
-    @Override
-    public Optional<Currency> findById(int id) {
-        return Optional.empty();
     }
 
     @Override
@@ -48,21 +43,12 @@ public class CurrencyServiceImpl implements CurrencyService {
                                              .build();
             return savedCurrency;
         } catch (DaoConstraintViolationRuntimeException e) {
-            throw new CurrencyIntegrityViolationRuntimeException();
+            throw new IntegrityViolationRuntimeException();
         } catch (DaoRuntimeException e) {
             throw new ServerRuntimeException();
         }
     }
 
-    @Override
-    public Currency update(Currency currency, String[] params) {
-        return null;
-    }
-
-    @Override
-    public void delete(Currency currency) {
-
-    }
 
     @Override
     public Currency findByCode(String code) {
