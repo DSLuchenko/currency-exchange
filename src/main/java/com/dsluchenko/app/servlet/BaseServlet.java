@@ -1,6 +1,6 @@
 package com.dsluchenko.app.servlet;
 
-import com.dsluchenko.app.service.exception.CurrencyIntegrityViolationRuntimeException;
+import com.dsluchenko.app.service.exception.IntegrityViolationRuntimeException;
 import com.dsluchenko.app.service.exception.CurrencyNotFoundException;
 import com.dsluchenko.app.service.exception.ExchangeRateNotFoundRuntimeException;
 import com.dsluchenko.app.service.exception.ServerRuntimeException;
@@ -29,7 +29,7 @@ class BaseServlet extends HttpServlet {
             } else {
                 super.service(req, resp);
             }
-        } catch (CurrencyIntegrityViolationRuntimeException e) {
+        } catch (IntegrityViolationRuntimeException e) {
             responseHandler.writeError(resp, HttpServletResponse.SC_CONFLICT, e.getMessage());
         } catch (CurrencyNotFoundException | ExchangeRateNotFoundRuntimeException e) {
             responseHandler.writeError(resp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());

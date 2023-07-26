@@ -1,10 +1,12 @@
 package com.dsluchenko.app.service.impl;
 
 import com.dsluchenko.app.dao.ExchangeRateDao;
+import com.dsluchenko.app.dao.exception.DaoConstraintViolationRuntimeException;
 import com.dsluchenko.app.dao.exception.DaoRuntimeException;
 import com.dsluchenko.app.dao.impl.ExchangeRateDaoJdbc;
 import com.dsluchenko.app.entity.ExchangeRate;
 import com.dsluchenko.app.service.ExchangeRateService;
+import com.dsluchenko.app.service.exception.IntegrityViolationRuntimeException;
 import com.dsluchenko.app.service.exception.ExchangeRateNotFoundRuntimeException;
 import com.dsluchenko.app.service.exception.ServerRuntimeException;
 
@@ -40,6 +42,8 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
                                                            .build();
 
             return createdExchangeRate;
+        } catch (DaoConstraintViolationRuntimeException e) {
+            throw new IntegrityViolationRuntimeException();
         } catch (DaoRuntimeException e) {
             throw new ServerRuntimeException();
         }

@@ -1,6 +1,7 @@
 package com.dsluchenko.app.servlet;
 
 import com.dsluchenko.app.dto.ExchangeRateDto;
+import com.dsluchenko.app.dto.ExchangeRateRequest;
 import com.dsluchenko.app.entity.Currency;
 import com.dsluchenko.app.entity.ExchangeRate;
 import com.dsluchenko.app.service.CurrencyService;
@@ -60,17 +61,15 @@ public class ExchangeRateServlet extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        String baseCurrencyCode = (String) req.getAttribute("baseCode");
-        String targetCurrencyCode = (String) req.getAttribute("targetCode");
-        BigDecimal rate = (BigDecimal) req.getAttribute("rate");
+        ExchangeRateRequest dto = (ExchangeRateRequest) req.getAttribute("dto");
 
-        Currency baseCurrency = currencyService.findByCode(baseCurrencyCode);
-        Currency targetCurrency = currencyService.findByCode(targetCurrencyCode);
+        Currency baseCurrency = currencyService.findByCode(dto.baseCurrencyCode());
+        Currency targetCurrency = currencyService.findByCode(dto.targetCurrencyCode());
 
         ExchangeRate newExchangeRate = ExchangeRate.builder()
                                                    .baseCurrency(baseCurrency)
                                                    .targetCurrency(targetCurrency)
-                                                   .rate(rate)
+                                                   .rate(dto.rate())
                                                    .build();
 
         newExchangeRate = rateService.create(newExchangeRate);
