@@ -75,7 +75,6 @@ public class CurrencyDaoJdbc implements CurrencyDao {
     @Override
     public int save(Currency currency) {
         String sql = "INSERT INTO currency (code,full_name,sign) values(?,?,?)";
-        int id = 0;
         try (Connection connection = connBuilder.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
@@ -83,12 +82,12 @@ public class CurrencyDaoJdbc implements CurrencyDao {
             statement.setString(2, currency.getFullName());
             statement.setString(3, currency.getSign());
 
-            int affectedRows = statement.executeUpdate();
-            if (affectedRows > 0) {
-                try (ResultSet rs = statement.getGeneratedKeys()) {
-                    rs.next();
-                    id = rs.getInt(1);
-                }
+            statement.execute();
+
+            try (ResultSet rs = statement.getGeneratedKeys()) {
+                rs.next();
+                int id = rs.getInt("id");
+                return id;
             }
 
         } catch (PSQLException e) {
@@ -109,8 +108,6 @@ public class CurrencyDaoJdbc implements CurrencyDao {
                     e);
             throw new DaoRuntimeException(e.getMessage());
         }
-
-        return id;
     }
 
     @Override

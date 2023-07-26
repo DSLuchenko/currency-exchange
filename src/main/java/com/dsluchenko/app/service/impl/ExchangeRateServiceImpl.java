@@ -30,7 +30,19 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 
     @Override
     public ExchangeRate create(ExchangeRate exchangeRate) {
-        return null;
+        try {
+            int id = dao.save(exchangeRate);
+            ExchangeRate createdExchangeRate = ExchangeRate.builder()
+                                                           .id(id)
+                                                           .baseCurrency(exchangeRate.getBaseCurrency())
+                                                           .targetCurrency(exchangeRate.getTargetCurrency())
+                                                           .rate(exchangeRate.getRate())
+                                                           .build();
+
+            return createdExchangeRate;
+        } catch (DaoRuntimeException e) {
+            throw new ServerRuntimeException();
+        }
     }
 
     @Override

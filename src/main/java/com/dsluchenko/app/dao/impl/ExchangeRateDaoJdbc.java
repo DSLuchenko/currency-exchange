@@ -1,14 +1,18 @@
 package com.dsluchenko.app.dao.impl;
 
 import com.dsluchenko.app.dao.ExchangeRateDao;
+import com.dsluchenko.app.dao.exception.DaoConstraintViolationRuntimeException;
 import com.dsluchenko.app.dao.exception.DaoRuntimeException;
 import com.dsluchenko.app.entity.Currency;
 import com.dsluchenko.app.entity.ExchangeRate;
 import com.dsluchenko.app.util.DbConnectionBuilder;
+import com.dsluchenko.app.util.impl.PgSqlErrorCode;
 import com.dsluchenko.app.util.impl.PoolConnectionBuilder;
+import org.postgresql.util.PSQLException;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -67,7 +71,42 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
 
     @Override
     public int save(ExchangeRate exchangeRate) {
-        return 0;
+        String sql = "INSERT INTO exchange_rate (base_currency_id, target_currency_id, rate) values (?,?,?)";
+
+        try (Connection connection = connBuilder.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+        ) {
+            statement.setInt(1, exchangeRate.getBaseCurrency().getId());
+            statement.setInt(2, exchangeRate.getTargetCurrency().getId());
+            statement.setBigDecimal(3, exchangeRate.getRate());
+
+            statement.execute();
+
+            try (ResultSet rs = statement.getGeneratedKeys()) {
+                rs.next();
+                int id = rs.getInt("id");
+                return id;
+            }
+
+        } catch (PSQLException e) {
+            if (e.getSQLState().equals(PgSqlErrorCode.UNIQUE_VIOLATION)) {
+                logger.log(Level.SEVERE,
+                        "Exchange rate not saved, constraint has been violated",
+                        e);
+                throw new DaoConstraintViolationRuntimeException();
+            }
+
+            logger.log(Level.SEVERE,
+                    "Exchange rate not saved, sqlError code: " + e.getSQLState(),
+                    e);
+            throw new DaoRuntimeException(e.getMessage());
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE,
+                    "Exchange rate not saved",
+                    e);
+            throw new DaoRuntimeException(e.getMessage());
+        }
+
     }
 
     @Override
@@ -124,7 +163,8 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
     }
 
     @Override
-    public Optional<ExchangeRate> updateByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
+    public Optional<ExchangeRate> updateByCurrencyCodes(String baseCurrencyCode, String
+            targetCurrencyCode, BigDecimal rate) {
         String sql = "with er as " +
                 "         (update exchange_rate " +
                 "             set rate = ? " +
