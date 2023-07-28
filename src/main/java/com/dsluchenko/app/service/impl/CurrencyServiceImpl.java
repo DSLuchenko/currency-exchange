@@ -3,7 +3,6 @@ package com.dsluchenko.app.service.impl;
 import com.dsluchenko.app.dao.CurrencyDao;
 import com.dsluchenko.app.dao.exception.DaoConstraintViolationRuntimeException;
 import com.dsluchenko.app.dao.exception.DaoRuntimeException;
-import com.dsluchenko.app.dao.impl.CurrencyDaoJdbc;
 import com.dsluchenko.app.entity.Currency;
 import com.dsluchenko.app.service.CurrencyService;
 import com.dsluchenko.app.service.exception.IntegrityViolationRuntimeException;
@@ -17,8 +16,8 @@ import java.util.Optional;
 public class CurrencyServiceImpl implements CurrencyService {
     private final CurrencyDao dao;
 
-    public CurrencyServiceImpl() {
-        dao = new CurrencyDaoJdbc();
+    public CurrencyServiceImpl(CurrencyDao dao) {
+        this.dao = dao;
     }
 
     @Override
