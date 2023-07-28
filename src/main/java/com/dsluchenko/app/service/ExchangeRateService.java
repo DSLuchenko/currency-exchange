@@ -9,4 +9,8 @@ public interface ExchangeRateService extends Service<ExchangeRate> {
     ExchangeRate findByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode);
 
     ExchangeRate changeRate(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate);
+
+    ExchangeRate getAvailableExchangeRate(String baseCurrencyCode, String targetCurrencyCode);
+
+    BigDecimal exchange(ExchangeRate rate, BigDecimal amount);
 }
