@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.logging.Logger;
 
-@WebFilter(urlPatterns = "/*", dispatcherTypes = DispatcherType.REQUEST)
+@WebFilter(urlPatterns = "/*")
 public class BaseFilter implements Filter {
     private static final Logger logger = Logger.getLogger(BaseFilter.class.getName());
     private ResponseHandler responseHandler;

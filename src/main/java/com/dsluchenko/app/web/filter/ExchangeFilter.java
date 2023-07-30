@@ -47,6 +47,5 @@ public class ExchangeFilter implements Filter {
         } catch (Exception e) {
             throw new BadParametersRuntimeException();
         }
-
     }
 }

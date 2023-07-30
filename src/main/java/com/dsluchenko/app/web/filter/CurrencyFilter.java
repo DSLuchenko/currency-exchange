@@ -1,13 +1,9 @@
 package com.dsluchenko.app.web.filter;
 
-import com.dsluchenko.app.dto.CurrencyResponse;
+import com.dsluchenko.app.dto.request.CurrencyCreateRequest;
 import com.dsluchenko.app.web.exception.BadParametersRuntimeException;
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.ServletException;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -20,7 +16,7 @@ import java.util.*;
 @WebFilter(urlPatterns = "/currency/*", servletNames = "CurrencyServlet")
 public class CurrencyFilter implements Filter {
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String method = httpRequest.getMethod();
@@ -31,7 +27,7 @@ public class CurrencyFilter implements Filter {
                 String name = request.getParameter("name");
                 String code = request.getParameter("code").toUpperCase();
                 String sign = request.getParameter("sign");
-                request.setAttribute("dto", new CurrencyResponse(name, code, sign));
+                request.setAttribute("dto", new CurrencyCreateRequest(name, code, sign));
                 break;
             case "GET":
                 validateCurrencyCodeInUrl(httpRequest.getPathInfo());
@@ -41,12 +37,11 @@ public class CurrencyFilter implements Filter {
             default:
                 break;
         }
-
         chain.doFilter(request, response);
     }
 
     private void validateCurrencyParametersInBody(ServletRequest request) {
-        List<String> currencyFields = Arrays.stream(CurrencyResponse.class.getDeclaredFields())
+        List<String> currencyFields = Arrays.stream(CurrencyCreateRequest.class.getDeclaredFields())
                                             .toList()
                                             .stream()
                                             .map(Field::getName)

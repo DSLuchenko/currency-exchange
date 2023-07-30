@@ -111,30 +111,6 @@ public class CurrencyDaoJdbc implements CurrencyDao {
     }
 
     @Override
-    public int update(Currency currency, String[] params) {
-        return 0;
-    }
-
-    @Override
-    public int delete(Currency currency) {
-        String sql = "DELETE currency WHERE id = ?";
-        int id = 0;
-        try (Connection connection = connBuilder.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            statement.setLong(1, currency.getId());
-            statement.execute();
-
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE,
-                    "Currency not deleted",
-                    e);
-            throw new DaoRuntimeException(e.getMessage());
-        }
-        return id;
-    }
-
-    @Override
     public Optional<Currency> getByCode(String code) {
         String sql = "SELECT * FROM currency where code = ?";
         Optional<Currency> currency = Optional.empty();

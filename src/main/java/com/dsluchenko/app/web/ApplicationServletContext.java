@@ -5,7 +5,6 @@ import com.dsluchenko.app.data.dao.impl.ExchangeRateDaoJdbc;
 import com.dsluchenko.app.service.impl.CurrencyServiceImpl;
 import com.dsluchenko.app.service.impl.ExchangeRateServiceImpl;
 import com.dsluchenko.app.mapper.impl.CurrencyMapperImpl;
-import com.dsluchenko.app.mapper.impl.ExchangeRateMapperImpl;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
@@ -17,10 +16,12 @@ public class ApplicationServletContext implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext servletContext = sce.getServletContext();
+
         servletContext.setAttribute(CurrencyMapperImpl.class.getSimpleName(), new CurrencyMapperImpl());
+
         servletContext.setAttribute(CurrencyServiceImpl.class.getSimpleName(), new CurrencyServiceImpl(new CurrencyDaoJdbc()));
-        servletContext.setAttribute(ExchangeRateMapperImpl.class.getSimpleName(), new ExchangeRateMapperImpl());
         servletContext.setAttribute(ExchangeRateServiceImpl.class.getSimpleName(), new ExchangeRateServiceImpl(new ExchangeRateDaoJdbc()));
+
         servletContext.setAttribute(ResponseHandler.class.getSimpleName(), new ResponseHandler());
     }
 

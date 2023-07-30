@@ -1,17 +1,14 @@
 package com.dsluchenko.app.web.servlet;
 
-import com.dsluchenko.app.dto.response.ExchangeRateResponse;
-import com.dsluchenko.app.dto.request.ExchangeRateRequest;
+import com.dsluchenko.app.dto.request.ExchangeRateCreateRequest;
 import com.dsluchenko.app.model.Currency;
 import com.dsluchenko.app.model.ExchangeRate;
 import com.dsluchenko.app.service.CurrencyService;
 import com.dsluchenko.app.service.ExchangeRateService;
 import com.dsluchenko.app.service.impl.CurrencyServiceImpl;
 import com.dsluchenko.app.service.impl.ExchangeRateServiceImpl;
-import com.dsluchenko.app.mapper.ExchangeRateMapper;
-import com.dsluchenko.app.mapper.impl.ExchangeRateMapperImpl;
-
 import com.dsluchenko.app.web.ResponseHandler;
+
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,19 +17,16 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.math.BigDecimal;
 
-@WebServlet("/exchangeRate/*")
+@WebServlet(urlPatterns = "/exchangeRate/*", name = "ExchangeRateServlet")
 public class ExchangeRateServlet extends BaseServlet {
     private ExchangeRateService rateService;
     private CurrencyService currencyService;
-    private ExchangeRateMapper mapper;
     private ResponseHandler responseHandler;
-
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         rateService = (ExchangeRateServiceImpl) config.getServletContext().getAttribute(ExchangeRateServiceImpl.class.getSimpleName());
         currencyService = (CurrencyServiceImpl) config.getServletContext().getAttribute(CurrencyServiceImpl.class.getSimpleName());
-        mapper = (ExchangeRateMapperImpl) config.getServletContext().getAttribute(ExchangeRateMapperImpl.class.getSimpleName());
         responseHandler = (ResponseHandler) config.getServletContext().getAttribute(ResponseHandler.class.getSimpleName());
         super.init(config);
     }
@@ -43,9 +37,8 @@ public class ExchangeRateServlet extends BaseServlet {
         String targetCurrencyCode = (String) req.getAttribute("targetCode");
 
         ExchangeRate exchangeRate = rateService.findByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
-        ExchangeRateResponse exchangeRateResponse = mapper.mapToDTO(exchangeRate);
 
-        responseHandler.writeResponse(resp, exchangeRateResponse);
+        responseHandler.writeResponse(resp, exchangeRate);
     }
 
     @Override
@@ -55,14 +48,13 @@ public class ExchangeRateServlet extends BaseServlet {
         BigDecimal rate = (BigDecimal) req.getAttribute("rate");
 
         ExchangeRate exchangeRate = rateService.changeRate(baseCurrencyCode, targetCurrencyCode, rate);
-        ExchangeRateResponse exchangeRateResponse = mapper.mapToDTO(exchangeRate);
 
-        responseHandler.writeResponse(resp, exchangeRateResponse);
+        responseHandler.writeResponse(resp, exchangeRate);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        ExchangeRateRequest dto = (ExchangeRateRequest) req.getAttribute("dto");
+        ExchangeRateCreateRequest dto = (ExchangeRateCreateRequest) req.getAttribute("dto");
 
         Currency baseCurrency = currencyService.findByCode(dto.baseCurrencyCode());
         Currency targetCurrency = currencyService.findByCode(dto.targetCurrencyCode());

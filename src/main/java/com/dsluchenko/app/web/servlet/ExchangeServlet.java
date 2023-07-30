@@ -1,11 +1,11 @@
 package com.dsluchenko.app.web.servlet;
 
-import com.dsluchenko.app.dto.request.ExchangeAmountRequest;
+import com.dsluchenko.app.dto.response.ExchangeAmountResponse;
 import com.dsluchenko.app.model.ExchangeRate;
 import com.dsluchenko.app.service.ExchangeRateService;
 import com.dsluchenko.app.service.impl.ExchangeRateServiceImpl;
-
 import com.dsluchenko.app.web.ResponseHandler;
+
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,11 +14,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.math.BigDecimal;
 
-@WebServlet("/exchange/*")
+@WebServlet(urlPatterns = "/exchange/*", name = "ExchangeServlet")
 public class ExchangeServlet extends BaseServlet {
     private ExchangeRateService service;
     private ResponseHandler responseHandler;
-
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -36,7 +35,7 @@ public class ExchangeServlet extends BaseServlet {
         ExchangeRate rate = service.getAvailableExchangeRate(from, to);
         BigDecimal convertedAmount = service.exchange(rate, amount);
 
-        ExchangeAmountRequest exchangeAmount = new ExchangeAmountRequest(rate, amount, convertedAmount);
+        ExchangeAmountResponse exchangeAmount = new ExchangeAmountResponse(rate, amount, convertedAmount);
 
         responseHandler.writeResponse(resp, exchangeAmount);
     }

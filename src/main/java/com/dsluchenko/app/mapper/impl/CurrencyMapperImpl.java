@@ -1,16 +1,16 @@
 package com.dsluchenko.app.mapper.impl;
 
-import com.dsluchenko.app.dto.CurrencyResponse;
+import com.dsluchenko.app.dto.request.CurrencyCreateRequest;
 import com.dsluchenko.app.model.Currency;
 import com.dsluchenko.app.mapper.CurrencyMapper;
 
 public class CurrencyMapperImpl implements CurrencyMapper {
 
     @Override
-    public CurrencyResponse mapToDTO(Currency entity) {
+    public CurrencyCreateRequest mapToDTO(Currency entity) {
         if (entity == null) throw new RuntimeException();
 
-        return new CurrencyResponse(
+        return new CurrencyCreateRequest(
                 entity.getFullName(),
                 entity.getCode(),
                 entity.getSign()
@@ -18,7 +18,7 @@ public class CurrencyMapperImpl implements CurrencyMapper {
     }
 
     @Override
-    public Currency mapToEntity(CurrencyResponse dto) {
+    public Currency mapToEntity(CurrencyCreateRequest dto) {
         if (dto == null) throw new RuntimeException();
 
         return Currency.builder()

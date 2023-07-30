@@ -1,20 +1,20 @@
 package com.dsluchenko.app.web.servlet;
 
-import com.dsluchenko.app.dto.CurrencyResponse;
+import com.dsluchenko.app.dto.request.CurrencyCreateRequest;
 import com.dsluchenko.app.model.Currency;
 import com.dsluchenko.app.service.CurrencyService;
 import com.dsluchenko.app.service.impl.CurrencyServiceImpl;
 import com.dsluchenko.app.mapper.CurrencyMapper;
 import com.dsluchenko.app.mapper.impl.CurrencyMapperImpl;
-
 import com.dsluchenko.app.web.ResponseHandler;
+
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/currency/*")
+@WebServlet(urlPatterns = "/currency/*", name = "CurrencyServlet")
 public class CurrencyServlet extends BaseServlet {
 
     private CurrencyService service;
@@ -34,15 +34,14 @@ public class CurrencyServlet extends BaseServlet {
         String code = (String) req.getAttribute("code");
 
         Currency currency = service.findByCode(code);
-        CurrencyResponse currencyDTO = mapper.mapToDTO(currency);
 
-        responseHandler.writeResponse(resp, currencyDTO);
+        responseHandler.writeResponse(resp, currency);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        CurrencyResponse currencyDTO = (CurrencyResponse) req.getAttribute("dto");
-        Currency newCurrency = mapper.mapToEntity(currencyDTO);
+        CurrencyCreateRequest currencyRequest = (CurrencyCreateRequest) req.getAttribute("dto");
+        Currency newCurrency = mapper.mapToEntity(currencyRequest);
         newCurrency = service.create(newCurrency);
 
         responseHandler.writeResponse(resp, newCurrency);

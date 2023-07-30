@@ -1,6 +1,6 @@
 package com.dsluchenko.app.web.filter;
 
-import com.dsluchenko.app.dto.request.ExchangeRateRequest;
+import com.dsluchenko.app.dto.request.ExchangeRateCreateRequest;
 import com.dsluchenko.app.web.exception.BadParametersRuntimeException;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
@@ -16,11 +16,11 @@ import java.util.List;
 import java.util.Optional;
 
 
-@WebFilter("/exchangeRate/*")
+@WebFilter(urlPatterns = "/exchangeRate/*", servletNames = "ExchangeRateServlet")
 public class ExchangeRateFilter implements Filter {
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String method = httpRequest.getMethod();
 
@@ -28,7 +28,7 @@ public class ExchangeRateFilter implements Filter {
 
         switch (method) {
             case "POST":
-                ExchangeRateRequest exchangeRateRequest = getExchangeRateRequestFromBody(httpRequest);
+                ExchangeRateCreateRequest exchangeRateRequest = getExchangeRateRequestFromBody(httpRequest);
                 request.setAttribute("dto", exchangeRateRequest);
                 break;
             case "PATCH":
@@ -57,8 +57,8 @@ public class ExchangeRateFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    private ExchangeRateRequest getExchangeRateRequestFromBody(ServletRequest request) {
-        List<String> exchangeRateFields = Arrays.stream(ExchangeRateRequest.class.getDeclaredFields())
+    private ExchangeRateCreateRequest getExchangeRateRequestFromBody(ServletRequest request) {
+        List<String> exchangeRateFields = Arrays.stream(ExchangeRateCreateRequest.class.getDeclaredFields())
                                                 .toList()
                                                 .stream()
                                                 .map(Field::getName)
@@ -80,7 +80,7 @@ public class ExchangeRateFilter implements Filter {
                     " 'baseCurrencyCode' and 'baseTargetCode' length must be 3 characters");
         try {
             rate = BigDecimal.valueOf(Double.parseDouble(request.getParameter("rate")));
-            return new ExchangeRateRequest(baseCurrencyCode, baseTargetCode, rate);
+            return new ExchangeRateCreateRequest(baseCurrencyCode, baseTargetCode, rate);
         } catch (Exception e) {
             throw new BadParametersRuntimeException();
         }

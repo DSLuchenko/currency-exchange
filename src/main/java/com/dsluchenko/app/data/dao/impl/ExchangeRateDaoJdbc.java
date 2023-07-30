@@ -110,16 +110,6 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
     }
 
     @Override
-    public int update(ExchangeRate exchangeRate, String[] params) {
-        return 0;
-    }
-
-    @Override
-    public int delete(ExchangeRate exchangeRate) {
-        return 0;
-    }
-
-    @Override
     public Optional<ExchangeRate> getByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode) {
         String sql = "SELECT rate.id id," +
                 " rate.rate rate," +

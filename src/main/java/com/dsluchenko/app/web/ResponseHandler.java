@@ -2,7 +2,9 @@ package com.dsluchenko.app.web;
 
 import com.dsluchenko.app.dto.response.ErrorResponse;
 import com.dsluchenko.app.service.exception.ApplicationRuntimeException;
+
 import com.google.gson.Gson;
+
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
