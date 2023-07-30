@@ -1,6 +1,6 @@
 package com.dsluchenko.app.service.exception;
 
-public class ExchangeRateNotFoundRuntimeException extends RuntimeException {
+public class ExchangeRateNotFoundRuntimeException extends ApplicationRuntimeException {
     private static final String message = "Rate with codes not found";
 
     public ExchangeRateNotFoundRuntimeException() {

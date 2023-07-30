@@ -1,6 +1,6 @@
 package com.dsluchenko.app.service;
 
-import com.dsluchenko.app.entity.ExchangeRate;
+import com.dsluchenko.app.model.ExchangeRate;
 
 import java.math.BigDecimal;
 

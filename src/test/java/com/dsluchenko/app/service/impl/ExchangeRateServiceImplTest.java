@@ -1,8 +1,8 @@
 package com.dsluchenko.app.service.impl;
 
-import com.dsluchenko.app.dao.ExchangeRateDao;
-import com.dsluchenko.app.entity.Currency;
-import com.dsluchenko.app.entity.ExchangeRate;
+import com.dsluchenko.app.data.dao.ExchangeRateDao;
+import com.dsluchenko.app.model.Currency;
+import com.dsluchenko.app.model.ExchangeRate;
 import com.dsluchenko.app.service.ExchangeRateService;
 
 import com.dsluchenko.app.service.exception.UnavailableExchangeException;
