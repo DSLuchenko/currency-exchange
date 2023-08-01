@@ -163,7 +163,7 @@ class ExchangeRateServiceImplTest {
                                         .rate(BigDecimal.valueOf(2.5921))
                                         .build();
 
-        BigDecimal expected = BigDecimal.valueOf(133.44).setScale(2);
+        BigDecimal expected = BigDecimal.valueOf(133.44);
 
         BigDecimal actual = service.exchange(rate, BigDecimal.valueOf(51.4794));
 

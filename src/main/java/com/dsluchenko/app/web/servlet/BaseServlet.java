@@ -41,6 +41,5 @@ class BaseServlet extends HttpServlet {
         }
     }
 
-    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) {
-    }
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) {}
 }

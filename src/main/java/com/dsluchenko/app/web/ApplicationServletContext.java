@@ -10,11 +10,16 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
+import org.flywaydb.core.Flyway;
 
 @WebListener
 public class ApplicationServletContext implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        new Flyway(Flyway.configure()
+                         .installedBy("/src/main/java/resources").loadDefaultConfigurationFiles())
+                .migrate();
+
         ServletContext servletContext = sce.getServletContext();
 
         servletContext.setAttribute(CurrencyMapperImpl.class.getSimpleName(), new CurrencyMapperImpl());

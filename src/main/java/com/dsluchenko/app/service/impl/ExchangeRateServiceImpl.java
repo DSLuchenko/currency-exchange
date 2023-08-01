@@ -115,7 +115,7 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 
         BigDecimal rateUsdToBase = usdToBase.getRate();
         BigDecimal rateUsdToTarget = usdToTarget.getRate();
-        BigDecimal baseToTarget = rateUsdToTarget.divide(rateUsdToBase).setScale(4, RoundingMode.HALF_UP);
+        BigDecimal baseToTarget = rateUsdToTarget.divide(rateUsdToBase,4,RoundingMode.HALF_UP);
 
         return ExchangeRate.builder()
                            .rate(baseToTarget)
