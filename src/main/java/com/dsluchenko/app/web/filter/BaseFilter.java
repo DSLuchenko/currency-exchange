@@ -40,7 +40,7 @@ public class BaseFilter implements Filter {
         } catch (Exception e) {
             logger.log(Level.WARNING, e.getMessage(), e);
 
-            responseHandler.writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ((ApplicationRuntimeException) e).getMessage());
+            responseHandler.writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error");
         }
         logger.info(String.format("RESPONSE: status - %d.",
                 ((HttpServletResponse) response).getStatus()));
