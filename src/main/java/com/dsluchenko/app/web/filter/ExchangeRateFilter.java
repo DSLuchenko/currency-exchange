@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.dsluchenko.app.web.filter.ValidationConstants.*;
 
 @WebFilter(urlPatterns = "/exchangeRate/*", servletNames = "ExchangeRateServlet")
 public class ExchangeRateFilter implements Filter {
@@ -34,8 +35,10 @@ public class ExchangeRateFilter implements Filter {
             case "PATCH":
                 validateCurrencyCodesInUrl(httpRequest.getPathInfo());
 
-                baseCode = httpRequest.getPathInfo().substring(1, 4);
-                targetCode = httpRequest.getPathInfo().substring(4);
+                baseCode = httpRequest.getPathInfo().substring(
+                        START_INDEX_FIRST_CURRENCY_CODE_IN_URL,
+                        END_INDEX_FIRST_CURRENCY_CODE_IN_URL);
+                targetCode = httpRequest.getPathInfo().substring(END_INDEX_FIRST_CURRENCY_CODE_IN_URL);
                 BigDecimal rate = getRateFromBody(httpRequest);
 
                 request.setAttribute("rate", rate);
@@ -44,8 +47,10 @@ public class ExchangeRateFilter implements Filter {
                 break;
             case "GET":
                 validateCurrencyCodesInUrl(httpRequest.getPathInfo());
-                baseCode = httpRequest.getPathInfo().substring(1, 4);
-                targetCode = httpRequest.getPathInfo().substring(4);
+                baseCode = httpRequest.getPathInfo().substring(
+                        START_INDEX_FIRST_CURRENCY_CODE_IN_URL,
+                        END_INDEX_FIRST_CURRENCY_CODE_IN_URL);
+                targetCode = httpRequest.getPathInfo().substring(END_INDEX_FIRST_CURRENCY_CODE_IN_URL);
 
                 request.setAttribute("baseCode", baseCode);
                 request.setAttribute("targetCode", targetCode);
@@ -69,30 +74,44 @@ public class ExchangeRateFilter implements Filter {
         Collections.sort(requestFormFields);
 
         if (!exchangeRateFields.equals(requestFormFields))
-            throw new BadParametersRuntimeException();
+            throw new BadParametersRuntimeException(String.format(
+                    "expected parameters: %s actual parameters: %s",
+                    Arrays.toString(exchangeRateFields.toArray()),
+                    Arrays.toString(requestFormFields.toArray())));
 
         String baseCurrencyCode = request.getParameter("baseCurrencyCode");
-        String baseTargetCode = request.getParameter("targetCurrencyCode");
+        String targetCurrencyCode = request.getParameter("targetCurrencyCode");
         BigDecimal rate;
 
-        if (baseCurrencyCode.length() != 3 || baseTargetCode.length() != 3)
-            throw new BadParametersRuntimeException("Wrong request parameters:" +
-                    " 'baseCurrencyCode' and 'baseTargetCode' length must be 3 characters");
+        if (baseCurrencyCode.length() != CURRENCY_CODE_LENGTH || targetCurrencyCode.length() != CURRENCY_CODE_LENGTH)
+            throw new BadParametersRuntimeException(String.format(
+                    "Wrong request parameters: " +
+                            "baseCurrencyCode = %s expected length: %d actual length: %d ," +
+                            "targetCurrencyCode = %s expected length: %d actual length: %d ",
+                    baseCurrencyCode, CURRENCY_CODE_LENGTH, baseCurrencyCode.length(),
+                    targetCurrencyCode, CURRENCY_CODE_LENGTH, targetCurrencyCode.length()));
         try {
             rate = BigDecimal.valueOf(Double.parseDouble(request.getParameter("rate")));
-            return new ExchangeRateCreateRequest(baseCurrencyCode, baseTargetCode, rate);
-        } catch (Exception e) {
-            throw new BadParametersRuntimeException();
+            return new ExchangeRateCreateRequest(baseCurrencyCode, targetCurrencyCode, rate);
+        } catch (NumberFormatException e) {
+            throw new BadParametersRuntimeException(String.format(
+                    "Uncorrected rate data type: %s, expected double",
+                    request.getParameter("rate")
+            ));
         }
     }
 
     private void validateCurrencyCodesInUrl(String pathInfo) {
         String currencyCodesFromUrl = Optional.ofNullable(pathInfo)
                                               .orElseThrow(BadParametersRuntimeException::new)
-                                              .substring(1);
+                                              .substring(START_INDEX_FIRST_CURRENCY_CODE_IN_URL);
 
-        if (currencyCodesFromUrl.length() != 6)
-            throw new BadParametersRuntimeException();
+        if (currencyCodesFromUrl.length() != CURRENCY_CODE_LENGTH * 2)
+            throw new BadParametersRuntimeException(String.format(
+                    "Uncorrected length URI parameter: %s, expected length: %d actual length: %d",
+                    currencyCodesFromUrl,
+                    CURRENCY_CODE_LENGTH * 2,
+                    currencyCodesFromUrl.length()));
     }
 
     private BigDecimal getRateFromBody(HttpServletRequest servletRequest) {
@@ -103,15 +122,18 @@ public class ExchangeRateFilter implements Filter {
             String parameterName = body[0];
             String parameterValue = body[1];
 
-            if (!parameterName.equals("rate")) throw new BadParametersRuntimeException();
+            if (!parameterName.equals("rate")) throw new BadParametersRuntimeException(String.format(
+                    "expected parameter name: rate, actual parameter: %s", parameterName));
 
             BigDecimal rate = BigDecimal.valueOf(
                     Double.parseDouble(parameterValue));
 
             return rate;
 
-        } catch (Exception e) {
-            throw new BadParametersRuntimeException();
+        } catch (NumberFormatException | IOException e) {
+            throw new BadParametersRuntimeException(String.format(
+                    "Uncorrected rate data type, expected double"
+            ));
         }
     }
 }

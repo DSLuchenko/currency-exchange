@@ -12,9 +12,12 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import static com.dsluchenko.app.web.filter.ValidationConstants.*;
+
 
 @WebFilter(urlPatterns = "/currency/*", servletNames = "CurrencyServlet")
 public class CurrencyFilter implements Filter {
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
 
@@ -32,7 +35,7 @@ public class CurrencyFilter implements Filter {
             case "GET":
                 validateCurrencyCodeInUrl(httpRequest.getPathInfo());
                 httpRequest.setAttribute("code", httpRequest.getPathInfo()
-                                                            .substring(1));
+                                                            .substring(START_INDEX_FIRST_CURRENCY_CODE_IN_URL));
                 break;
             default:
                 break;
@@ -53,26 +56,36 @@ public class CurrencyFilter implements Filter {
         Collections.sort(requestFormFields);
 
         if (!currencyFields.equals(requestFormFields))
-            throw new BadParametersRuntimeException();
+            throw new BadParametersRuntimeException(String.format(
+                    "expected parameters: %s actual parameters: %s",
+                    Arrays.toString(currencyFields.toArray()),
+                    Arrays.toString(requestFormFields.toArray())));
 
 
         String code = request.getParameter("code");
         String sign = request.getParameter("sign");
 
-        if (code.length() != 3 || sign.length() != 1) {
-            throw new BadParametersRuntimeException("Wrong request parameters:" +
-                    " 'code' length must be 3 characters" +
-                    " and 'sign' length must be 1 character");
+        if (code.length() != CURRENCY_CODE_LENGTH || sign.length() != SIGN_LENGTH) {
+            throw new BadParametersRuntimeException(String.format("Wrong request parameters: " +
+                            "code = %s expected length: %d actual length: %d ," +
+                            "sing = %s expected length: %d actual length: %d ",
+                    code, CURRENCY_CODE_LENGTH, code.length(),
+                    sign, SIGN_LENGTH, sign.length()));
         }
     }
 
     private void validateCurrencyCodeInUrl(String pathInfo) {
+
         String code = Optional.ofNullable(pathInfo)
                               .orElseThrow(
                                       BadParametersRuntimeException::new)
-                              .substring(1);
+                              .substring(START_INDEX_FIRST_CURRENCY_CODE_IN_URL);
 
-        if (code.length() != 3)
-            throw new BadParametersRuntimeException();
+        if (code.length() != CURRENCY_CODE_LENGTH)
+            throw new BadParametersRuntimeException(String.format(
+                    "Uncorrected length URI parameter: %s, expected length: %d actual length: %d",
+                    code,
+                    CURRENCY_CODE_LENGTH,
+                    code.length()));
     }
 }

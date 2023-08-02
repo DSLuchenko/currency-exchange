@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+import static com.dsluchenko.app.web.filter.ValidationConstants.*;
+
 @WebFilter(urlPatterns = "/exchange/*", servletNames = "ExchangeServlet")
 public class ExchangeFilter implements Filter {
 
@@ -40,12 +42,22 @@ public class ExchangeFilter implements Filter {
         String amount = request.getParameter("amount");
 
         try {
-            if (from.length() != 3 || to.length() != 3)
-                throw new BadParametersRuntimeException();
+            if (from.length() != CURRENCY_CODE_LENGTH || to.length() != CURRENCY_CODE_LENGTH)
+                throw new BadParametersRuntimeException(String.format(
+                        "Wrong request parameters: " +
+                                "from = %s expected length: %d actual length: %d ," +
+                                "to = %s expected length: %d actual length: %d ",
+                        from, CURRENCY_CODE_LENGTH, from.length(),
+                        to, CURRENCY_CODE_LENGTH, to.length()));
 
             Double.parseDouble(amount);
-        } catch (Exception e) {
-            throw new BadParametersRuntimeException();
+        } catch (NumberFormatException e) {
+            throw new BadParametersRuntimeException(String.format(
+                    "Uncorrected amount data type: %s, expected double",
+                    amount
+            ));
+        } catch (NullPointerException e) {
+            throw new BadParametersRuntimeException("Uncorrected expected query parameters:<from>&<to>&<amount>");
         }
     }
 }
