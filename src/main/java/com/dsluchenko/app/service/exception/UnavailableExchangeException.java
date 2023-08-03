@@ -1,6 +1,6 @@
 package com.dsluchenko.app.service.exception;
 
-public class UnavailableExchangeException extends RuntimeException {
+public class UnavailableExchangeException extends ApplicationRuntimeException {
     private final static String message = "Exchange rate in not available";
 
     public UnavailableExchangeException() {

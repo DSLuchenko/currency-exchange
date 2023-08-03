@@ -1,6 +1,6 @@
 package com.dsluchenko.app.service.exception;
 
-public class IntegrityViolationRuntimeException extends RuntimeException {
+public class IntegrityViolationRuntimeException extends ApplicationRuntimeException {
     private static final String message = "Data already exists";
 
     public IntegrityViolationRuntimeException() {
