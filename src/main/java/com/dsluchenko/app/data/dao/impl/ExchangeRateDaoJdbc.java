@@ -61,10 +61,8 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
                 createExchangeRate(resultSet).ifPresent(exchangeRates::add);
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE,
-                    "List of all exchange rates not received",
-                    e);
-            throw new DaoRuntimeException(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new DaoRuntimeException();
         }
         return exchangeRates;
     }
@@ -90,21 +88,19 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
 
         } catch (PSQLException e) {
             if (e.getSQLState().equals(PgSqlErrorCode.UNIQUE_VIOLATION)) {
-                logger.log(Level.SEVERE,
-                        "Exchange rate not saved, constraint has been violated",
-                        e);
+                logger.info(String.format(
+                        "Exchange rate with base code: %s and target code: %s not saved," +
+                                " constraint has been violated",
+                        exchangeRate.getBaseCurrency().getCode(),
+                        exchangeRate.getTargetCurrency().getCode()));
                 throw new DaoConstraintViolationRuntimeException();
             }
 
-            logger.log(Level.SEVERE,
-                    "Exchange rate not saved, sqlError code: " + e.getSQLState(),
-                    e);
-            throw new DaoRuntimeException(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new DaoRuntimeException();
         } catch (SQLException e) {
-            logger.log(Level.SEVERE,
-                    "Exchange rate not saved",
-                    e);
-            throw new DaoRuntimeException(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new DaoRuntimeException();
         }
 
     }
@@ -138,15 +134,15 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
                     return createExchangeRate(resultSet);
                 }
             }
+            logger.info(String.format("Exchange rate with base code: " +
+                            " %s and target code: " +
+                            " %s not received",
+                    baseCurrencyCode,
+                    targetCurrencyCode));
 
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, String.format("Exchange rate with base currency code: " +
-                                    " %s and target currency code: " +
-                                    " %s not received",
-                            baseCurrencyCode,
-                            targetCurrencyCode),
-                    e);
-            throw new DaoRuntimeException(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new DaoRuntimeException();
         }
 
         return Optional.empty();
@@ -191,16 +187,16 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
                     return createExchangeRate(resultSet);
                 }
             }
+            logger.info(String.format("Exchange rate value: %f with base code: " +
+                            " %s and target code: " +
+                            " %s not update",
+                    rate,
+                    baseCurrencyCode,
+                    targetCurrencyCode));
 
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, String.format("Exchange rate value: %f with base currency code: " +
-                                    " %s and target currency code: " +
-                                    " %s not update",
-                            rate,
-                            baseCurrencyCode,
-                            targetCurrencyCode),
-                    e);
-            throw new DaoRuntimeException(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new DaoRuntimeException();
         }
 
         return Optional.empty();

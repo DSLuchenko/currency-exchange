@@ -37,9 +37,10 @@ class BaseServlet extends HttpServlet {
         } catch (ApplicationRuntimeException e) {
             responseHandler.writeError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (Exception e) {
-            responseHandler.writeError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            responseHandler.writeError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error");
         }
     }
 
-    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) {}
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) {
+    }
 }

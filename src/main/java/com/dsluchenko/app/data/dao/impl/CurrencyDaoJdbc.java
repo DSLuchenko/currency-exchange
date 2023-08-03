@@ -38,15 +38,10 @@ public class CurrencyDaoJdbc implements CurrencyDao {
                 if (resultSet.next()) {
                     currency = createCurrency(resultSet);
                 }
-            } catch (SQLException e) {
-                logger.log(Level.WARNING,
-                        "Currency not created",
-                        e);
             }
+            logger.info(String.format("Currency by id: %d not received", id));
         } catch (SQLException e) {
-            logger.log(Level.SEVERE,
-                    "Currency by id: " + id + " not received",
-                    e);
+            logger.log(Level.WARNING, e.getMessage(), e);
             throw new DaoRuntimeException(e.getMessage());
         }
         return currency;
@@ -64,9 +59,7 @@ public class CurrencyDaoJdbc implements CurrencyDao {
                 createCurrency(resultSet).ifPresent(currencies::add);
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE,
-                    "List of all currencies not received",
-                    e);
+            logger.log(Level.WARNING, e.getMessage(), e);
             throw new DaoRuntimeException(e.getMessage());
         }
         return currencies;
@@ -92,21 +85,17 @@ public class CurrencyDaoJdbc implements CurrencyDao {
 
         } catch (PSQLException e) {
             if (e.getSQLState().equals(PgSqlErrorCode.UNIQUE_VIOLATION)) {
-                logger.log(Level.SEVERE,
-                        "Currency not saved, constraint has been violated",
-                        e);
+                logger.info(String.format(
+                        "Currency with code: %s not saved, constraint has been violated",
+                        currency.getCode()));
                 throw new DaoConstraintViolationRuntimeException();
             }
 
-            logger.log(Level.SEVERE,
-                    "Currency not saved, sqlError code: " + e.getSQLState(),
-                    e);
-            throw new DaoRuntimeException(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new DaoRuntimeException();
         } catch (SQLException e) {
-            logger.log(Level.SEVERE,
-                    "Currency not saved",
-                    e);
-            throw new DaoRuntimeException(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new DaoRuntimeException();
         }
     }
 
@@ -122,16 +111,14 @@ public class CurrencyDaoJdbc implements CurrencyDao {
                 if (resultSet.next()) {
                     currency = createCurrency(resultSet);
                 }
-            } catch (SQLException e) {
-                logger.log(Level.WARNING,
-                        "Currency not created",
-                        e);
+
+                logger.info(String.format(
+                        "Currency with code: %s not found",
+                        code));
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE,
-                    "Currency by code: " + code + " not received",
-                    e);
-            throw new DaoRuntimeException(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new DaoRuntimeException();
         }
         return currency;
     }

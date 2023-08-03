@@ -8,7 +8,6 @@ public class CurrencyMapperImpl implements CurrencyMapper {
 
     @Override
     public CurrencyCreateRequest mapToDTO(Currency entity) {
-        if (entity == null) throw new RuntimeException();
 
         return new CurrencyCreateRequest(
                 entity.getFullName(),
@@ -19,7 +18,6 @@ public class CurrencyMapperImpl implements CurrencyMapper {
 
     @Override
     public Currency mapToEntity(CurrencyCreateRequest dto) {
-        if (dto == null) throw new RuntimeException();
 
         return Currency.builder()
                        .id(0)
@@ -27,6 +25,5 @@ public class CurrencyMapperImpl implements CurrencyMapper {
                        .code(dto.code())
                        .sign(dto.sign())
                        .build();
-
     }
 }
