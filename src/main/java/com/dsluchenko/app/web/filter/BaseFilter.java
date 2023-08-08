@@ -26,6 +26,7 @@ public class BaseFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+        ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", "*");
         try {
             logger.info(String.format("REQUEST: URI - %s, method - %s.",
                     ((HttpServletRequest) request).getRequestURI(),
