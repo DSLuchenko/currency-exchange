@@ -1,0 +1,325 @@
+openapi: 3.0.3
+
+info:
+  title: Currency-exchange - OpenAPI 3.0
+  description:
+    REST API for describing currencies and exchange rates.
+
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8085/api
+tags:
+  - name: currency
+  - name: currencies
+  - name: exchangeRate
+  - name: exchangeRates
+  - name: exchange
+paths:
+  /currency/{code}:
+    get:
+      tags:
+        - currency
+      description: Get currency by code
+      parameters:
+        - name: code
+          in: path
+          description: unique currency code
+          required: true
+          schema:
+            type: string
+            maxLength: 3
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseCurrency'          
+        '400':
+          description: Validation exception
+        '404':
+          description: currency not found
+        '500':
+          description: Internal server error
+  /currency:
+    post:
+      tags:
+        - currency
+      description: Add a new currency
+      requestBody:
+        required: true
+        content:
+           application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/requestCurrency'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseCurrency'          
+        '400':
+          description: Validation exception
+        '409':
+          description: Data already exists
+        '500':
+          description: Internal server error
+      
+  
+  /currencies:
+    get:
+      tags:
+        - currencies
+      description: get all currencies
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseCurrencies'          
+        '500':
+          description: Internal server error
+  /exchangeRates:
+    get:
+      tags:
+        - exchangeRates
+      description: get all exchange rates
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseExhangeRates'          
+        '500':
+          description: Internal server error
+  /exchangeRate/{currencyCodes}:
+    get:
+      tags:
+        - exchangeRate
+      description: Get exchangeRate by currency codes
+      parameters:
+        - in: path
+          name: currencyCodes
+          description: test
+          schema:
+            type: string
+            maxLength: 6
+          required: true
+          example: "EURUSD"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseExhangeRates'
+        '400':
+          description: Validation exception
+        '404':
+          description: ExchangeRate not found        
+        '500':
+          description: Internal server error    
+  /exchangeRate/{codes}:
+    patch:
+      tags:
+        - exchangeRate
+      description: update exchangeRate by currency codes
+      parameters:
+        - in: path
+          name: codes
+          description: test
+          schema:
+            type: string
+            maxLength: 6
+          required: true
+          example: "EURUSD"
+      requestBody:
+        required: true
+        content:
+           application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/patchExchangeRate'      
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseExhangeRates'
+        '400':
+          description: Validation exception
+        '404':
+          description: ExchangeRate not found        
+        '500':
+          description: Internal server error
+  /exchangeRate:
+    post:
+      tags:
+        - exchangeRate
+      description: update exchangeRate by currency codes
+      requestBody:
+        required: true
+        content:
+           application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/postExchangeRate'      
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseExhangeRates'
+        '400':
+          description: Validation exception
+        '409':
+          description: Data already exists       
+        '500':
+          description: Internal server error
+  /exchange:
+    get:
+      tags:
+        - exchange
+      description: Calculation of the required amount of funds from one currency in addiction
+      parameters: 
+        - in: query
+          name: from
+          schema:
+            type: string
+            example: "EUR"
+            maxLength: 3
+          description: base currency code
+        - in: query
+          name: to
+          schema:
+            type: string
+            example: "TRY"
+            maxLength: 3
+          description: target currency code
+        - in: query
+          name: amount
+          schema:
+            type: number
+            format: double
+            example: 10.5
+          description: amount to calculate
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getExchange'
+        '400':
+          description: Validation exception
+        '404':
+          description: Exchange rate not found        
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    responseCurrency:             
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        code:
+          type: string
+          example: "Euro"
+        name:
+          type: string
+          example: "EUR"
+          maxLength: 3
+        sign:
+          type: string
+          example: "€"
+          maxLength: 1
+    requestCurrency:             
+      type: object
+      properties:
+        code:
+          type: string
+          example: "United States dollar"
+        name:
+          type: string
+          example: "USD"
+          maxLength: 3
+        sign:
+          type: string
+          example: "$"
+          maxLength: 1      
+    responseCurrencies:             
+      type: array
+      items: 
+         $ref: '#/components/schemas/responseCurrency'
+    responseExhangeRate:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        baseCurrency:
+          $ref: '#/components/schemas/responseCurrency'
+        targetCurrency:
+          $ref: '#/components/schemas/responseCurrency'
+        rate:
+          type: number
+          format: dobule
+          example: "0.99"
+          maxLength: 3
+    responseExhangeRates:
+      type: array
+      items: 
+         $ref: '#/components/schemas/responseExhangeRate'
+    patchExchangeRate:
+      type: object
+      properties:
+        rate: 
+          type: number
+          format: double
+          example: "1.2345"
+    postExchangeRate:
+      type: object
+      properties:
+        baseCurrencyCode:
+          type: string
+          example: "EUR"
+          maxLength: 3
+        targetCurrencyCode:
+          type: string
+          example: "USD"
+          maxLength: 3
+        rate: 
+          type: number
+          format: double
+          example: "0.99"      
+    getExchange:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        baseCurrency:
+          $ref: '#/components/schemas/responseCurrency'
+        targetCurrency:
+          $ref: '#/components/schemas/responseCurrency'
+        rate:
+          type: number
+          format: dobule
+          example: "1.50"
+        amount:
+          type: number
+          format: dobule
+          example: "10.00"
+        convertedAmount:
+          type: number
+          format: dobule
+          example: "15.00"
+
+          
+   
