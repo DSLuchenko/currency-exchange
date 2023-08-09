@@ -2,7 +2,7 @@ package com.dsluchenko.app.service;
 
 import java.util.List;
 
-interface Service <T>{
+public interface Service <T>{
 
     List<T> getAll();
 
