@@ -1,8 +1,8 @@
 package com.dsluchenko.app.data.dao.impl;
 
 import com.dsluchenko.app.data.dao.CurrencyDao;
-import com.dsluchenko.app.data.dao.exception.DaoConstraintViolationRuntimeException;
-import com.dsluchenko.app.data.dao.exception.DaoRuntimeException;
+import com.dsluchenko.app.data.dao.exception.ConstraintViolationException;
+import com.dsluchenko.app.data.dao.exception.DaoApplicationException;
 import com.dsluchenko.app.model.Currency;
 import com.dsluchenko.app.data.db.DbConnectionBuilder;
 import com.dsluchenko.app.data.db.PgSqlErrorCode;
@@ -42,7 +42,7 @@ public class CurrencyDaoJdbc implements CurrencyDao {
             logger.info(String.format("Currency by id: %d not received", id));
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new DaoRuntimeException(e.getMessage());
+            throw new DaoApplicationException(e.getMessage());
         }
         return currency;
     }
@@ -60,7 +60,7 @@ public class CurrencyDaoJdbc implements CurrencyDao {
             }
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new DaoRuntimeException(e.getMessage());
+            throw new DaoApplicationException(e.getMessage());
         }
         return currencies;
     }
@@ -88,14 +88,14 @@ public class CurrencyDaoJdbc implements CurrencyDao {
                 logger.info(String.format(
                         "Currency with code: %s not saved, constraint has been violated",
                         currency.getCode()));
-                throw new DaoConstraintViolationRuntimeException();
+                throw new ConstraintViolationException();
             }
 
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new DaoRuntimeException();
+            throw new DaoApplicationException();
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new DaoRuntimeException();
+            throw new DaoApplicationException();
         }
     }
 
@@ -118,7 +118,7 @@ public class CurrencyDaoJdbc implements CurrencyDao {
             }
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new DaoRuntimeException();
+            throw new DaoApplicationException();
         }
         return currency;
     }

@@ -1,21 +1,14 @@
 package com.dsluchenko.app.service.exception;
 
-public class UnavailableExchangeException extends ApplicationRuntimeException {
-    private final static String message = "Exchange rate in not available";
+import jakarta.servlet.http.HttpServletResponse;
+
+public class UnavailableExchangeException extends ServiceApplicationException {
+    private final static String MESSAGE = "Exchange rate in not available";
 
     public UnavailableExchangeException() {
-        super(message);
+        super(MESSAGE, HttpServletResponse.SC_NOT_FOUND);
     }
-
     public UnavailableExchangeException(String message) {
-        super(message);
-    }
-
-    public UnavailableExchangeException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public UnavailableExchangeException(Throwable cause) {
-        super(cause);
+        super(message, HttpServletResponse.SC_NOT_FOUND);
     }
 }

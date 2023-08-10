@@ -1,8 +1,8 @@
 package com.dsluchenko.app.data.dao.impl;
 
 import com.dsluchenko.app.data.dao.ExchangeRateDao;
-import com.dsluchenko.app.data.dao.exception.DaoConstraintViolationRuntimeException;
-import com.dsluchenko.app.data.dao.exception.DaoRuntimeException;
+import com.dsluchenko.app.data.dao.exception.ConstraintViolationException;
+import com.dsluchenko.app.data.dao.exception.DaoApplicationException;
 import com.dsluchenko.app.model.Currency;
 import com.dsluchenko.app.model.ExchangeRate;
 import com.dsluchenko.app.data.db.DbConnectionBuilder;
@@ -62,7 +62,7 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
             }
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new DaoRuntimeException();
+            throw new DaoApplicationException();
         }
         return exchangeRates;
     }
@@ -93,14 +93,14 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
                                 " constraint has been violated",
                         exchangeRate.getBaseCurrency().getCode(),
                         exchangeRate.getTargetCurrency().getCode()));
-                throw new DaoConstraintViolationRuntimeException();
+                throw new ConstraintViolationException();
             }
 
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new DaoRuntimeException();
+            throw new DaoApplicationException();
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new DaoRuntimeException();
+            throw new DaoApplicationException();
         }
 
     }
@@ -142,7 +142,7 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
 
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new DaoRuntimeException();
+            throw new DaoApplicationException();
         }
 
         return Optional.empty();
@@ -196,7 +196,7 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
 
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new DaoRuntimeException();
+            throw new DaoApplicationException();
         }
 
         return Optional.empty();

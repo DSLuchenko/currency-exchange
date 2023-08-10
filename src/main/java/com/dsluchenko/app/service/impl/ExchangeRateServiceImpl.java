@@ -1,13 +1,13 @@
 package com.dsluchenko.app.service.impl;
 
 import com.dsluchenko.app.data.dao.ExchangeRateDao;
-import com.dsluchenko.app.data.dao.exception.DaoConstraintViolationRuntimeException;
-import com.dsluchenko.app.data.dao.exception.DaoRuntimeException;
+import com.dsluchenko.app.data.dao.exception.ConstraintViolationException;
+import com.dsluchenko.app.data.dao.exception.DaoApplicationException;
 import com.dsluchenko.app.model.ExchangeRate;
 import com.dsluchenko.app.service.ExchangeRateService;
-import com.dsluchenko.app.service.exception.IntegrityViolationRuntimeException;
-import com.dsluchenko.app.service.exception.ExchangeRateNotFoundRuntimeException;
-import com.dsluchenko.app.service.exception.ApplicationRuntimeException;
+import com.dsluchenko.app.service.exception.IntegrityViolationException;
+import com.dsluchenko.app.service.exception.ExchangeRateNotFoundException;
+import com.dsluchenko.app.exception.ApplicationRuntimeException;
 import com.dsluchenko.app.service.exception.UnavailableExchangeException;
 
 import java.math.BigDecimal;
@@ -29,7 +29,7 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
     public List<ExchangeRate> getAll() {
         try {
             return dao.getAll();
-        } catch (DaoRuntimeException e) {
+        } catch (DaoApplicationException e) {
             throw new ApplicationRuntimeException();
         }
     }
@@ -46,9 +46,9 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
                                                            .build();
 
             return createdExchangeRate;
-        } catch (DaoConstraintViolationRuntimeException e) {
-            throw new IntegrityViolationRuntimeException();
-        } catch (DaoRuntimeException e) {
+        } catch (ConstraintViolationException e) {
+            throw new IntegrityViolationException();
+        } catch (DaoApplicationException e) {
             throw new ApplicationRuntimeException();
         }
     }
@@ -57,8 +57,8 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
     public ExchangeRate findByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode) {
         try {
             Optional<ExchangeRate> exchangeRate = dao.getByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
-            return exchangeRate.orElseThrow(ExchangeRateNotFoundRuntimeException::new);
-        } catch (DaoRuntimeException e) {
+            return exchangeRate.orElseThrow(ExchangeRateNotFoundException::new);
+        } catch (DaoApplicationException e) {
             throw new ApplicationRuntimeException();
         }
     }
@@ -67,8 +67,8 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
     public ExchangeRate changeRate(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
         try {
             Optional<ExchangeRate> exchangeRate = dao.updateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode, rate);
-            return exchangeRate.orElseThrow(ExchangeRateNotFoundRuntimeException::new);
-        } catch (DaoRuntimeException e) {
+            return exchangeRate.orElseThrow(ExchangeRateNotFoundException::new);
+        } catch (DaoApplicationException e) {
             throw new ApplicationRuntimeException();
         }
     }
@@ -96,7 +96,7 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
                     "Reverse rate %s_%s not founded", targetCurrencyCode, baseCurrencyCode));
             return findCrossExchangeRateByUSD(baseCurrencyCode, targetCurrencyCode);
 
-        } catch (DaoRuntimeException e) {
+        } catch (DaoApplicationException e) {
             logger.info(String.format(
                     "Cross rate USD_%s and USD_%s  not founded", baseCurrencyCode, targetCurrencyCode));
             throw new ApplicationRuntimeException();

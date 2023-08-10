@@ -1,6 +1,6 @@
 package com.dsluchenko.app.web.filter;
 
-import com.dsluchenko.app.web.exception.BadParametersRuntimeException;
+import com.dsluchenko.app.web.exception.BadParametersException;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,7 +43,7 @@ public class ExchangeFilter implements Filter {
 
         try {
             if (from.length() != CURRENCY_CODE_LENGTH || to.length() != CURRENCY_CODE_LENGTH)
-                throw new BadParametersRuntimeException(String.format(
+                throw new BadParametersException(String.format(
                         "Wrong request parameters: " +
                                 "from = %s expected length: %d actual length: %d ," +
                                 "to = %s expected length: %d actual length: %d ",
@@ -52,12 +52,12 @@ public class ExchangeFilter implements Filter {
 
             Double.parseDouble(amount);
         } catch (NumberFormatException e) {
-            throw new BadParametersRuntimeException(String.format(
+            throw new BadParametersException(String.format(
                     "Uncorrected amount data type: %s, expected double",
                     amount
             ));
         } catch (NullPointerException e) {
-            throw new BadParametersRuntimeException("Uncorrected expected query parameters:<from>&<to>&<amount>");
+            throw new BadParametersException("Uncorrected expected query parameters:<from>&<to>&<amount>");
         }
     }
 }

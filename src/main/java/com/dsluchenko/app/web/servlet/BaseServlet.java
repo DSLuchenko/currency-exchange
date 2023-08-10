@@ -1,10 +1,7 @@
 package com.dsluchenko.app.web.servlet;
 
+import com.dsluchenko.app.exception.ApplicationRuntimeException;
 import com.dsluchenko.app.service.Service;
-import com.dsluchenko.app.service.exception.IntegrityViolationRuntimeException;
-import com.dsluchenko.app.service.exception.CurrencyNotFoundRuntimeException;
-import com.dsluchenko.app.service.exception.ExchangeRateNotFoundRuntimeException;
-import com.dsluchenko.app.service.exception.ApplicationRuntimeException;
 
 import com.dsluchenko.app.web.ResponseHandler;
 import jakarta.servlet.ServletConfig;
@@ -28,20 +25,10 @@ class BaseServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        try {
-            if (req.getMethod().equalsIgnoreCase("PATCH")) {
-                doPatch(req, resp);
-            } else {
-                super.service(req, resp);
-            }
-        } catch (IntegrityViolationRuntimeException e) {
-            responseHandler.writeError(resp, HttpServletResponse.SC_CONFLICT, e.getMessage());
-        } catch (CurrencyNotFoundRuntimeException | ExchangeRateNotFoundRuntimeException e) {
-            responseHandler.writeError(resp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
-        } catch (ApplicationRuntimeException e) {
-            responseHandler.writeError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-        } catch (Exception e) {
-            responseHandler.writeError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error");
+        if (req.getMethod().equalsIgnoreCase("PATCH")) {
+            doPatch(req, resp);
+        } else {
+            super.service(req, resp);
         }
     }
 
@@ -49,8 +36,12 @@ class BaseServlet extends HttpServlet {
     }
 
     protected <T extends Service> T getServiceFromContext(ServletContext sc, Class<T> type) {
-        var services = (Map<String, Service>) sc.getAttribute("services");
-        var service = services.get(type.getSimpleName());
-        return type.cast(service);
+        try {
+            var services = (Map<String, Service>) sc.getAttribute("services");
+            var service = services.get(type.getSimpleName());
+            return type.cast(service);
+        } catch (Exception e) {
+            throw new ApplicationRuntimeException();
+        }
     }
 }

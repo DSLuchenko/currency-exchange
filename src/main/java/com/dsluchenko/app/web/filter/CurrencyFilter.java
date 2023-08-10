@@ -1,7 +1,7 @@
 package com.dsluchenko.app.web.filter;
 
 import com.dsluchenko.app.dto.request.CurrencyCreateRequest;
-import com.dsluchenko.app.web.exception.BadParametersRuntimeException;
+import com.dsluchenko.app.web.exception.BadParametersException;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
@@ -56,7 +56,7 @@ public class CurrencyFilter implements Filter {
         Collections.sort(requestFormFields);
 
         if (!currencyFields.equals(requestFormFields))
-            throw new BadParametersRuntimeException(String.format(
+            throw new BadParametersException(String.format(
                     "expected parameters: %s actual parameters: %s",
                     Arrays.toString(currencyFields.toArray()),
                     Arrays.toString(requestFormFields.toArray())));
@@ -66,7 +66,7 @@ public class CurrencyFilter implements Filter {
         String sign = request.getParameter("sign");
 
         if (code.length() != CURRENCY_CODE_LENGTH || sign.length() != SIGN_LENGTH) {
-            throw new BadParametersRuntimeException(String.format("Wrong request parameters: " +
+            throw new BadParametersException(String.format("Wrong request parameters: " +
                             "code = %s expected length: %d actual length: %d ," +
                             "sing = %s expected length: %d actual length: %d ",
                     code, CURRENCY_CODE_LENGTH, code.length(),
@@ -78,11 +78,11 @@ public class CurrencyFilter implements Filter {
 
         String code = Optional.ofNullable(pathInfo)
                               .orElseThrow(
-                                      BadParametersRuntimeException::new)
+                                      BadParametersException::new)
                               .substring(START_INDEX_FIRST_CURRENCY_CODE_IN_URL);
 
         if (code.length() != CURRENCY_CODE_LENGTH)
-            throw new BadParametersRuntimeException(String.format(
+            throw new BadParametersException(String.format(
                     "Uncorrected length URI parameter: %s, expected length: %d actual length: %d",
                     code,
                     CURRENCY_CODE_LENGTH,
